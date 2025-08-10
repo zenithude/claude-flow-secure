@@ -1,0 +1,101 @@
+# Claude Flow Secure - .gitignore
+
+# Logs et données temporaires
+/tmp/
+/logs/
+*.log
+*.log.*
+
+# Claude Flow runtime
+.claude-flow-secure/logs/
+.claude-flow-secure/backups/
+/tmp/claude-logs/
+.claude/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+.docker/
+
+# Environment et configuration sensible
+.env
+.env.local
+.env.production
+.env.staging
+config/settings.local.json
+config/secrets.json
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn/
+package-lock.json
+yarn.lock
+
+# Backups et archives
+*.tar.gz
+*.zip
+*.bak
+backup-*/
+backups/
+
+# IDE et éditeurs
+.vscode/settings.json
+.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Système
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Tests
+coverage/
+.nyc_output/
+test-results/
+test-reports/
+
+# Certificats et clés
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+
+# Données utilisateur
+user-data/
+workspace/
+projects/
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+dist/
+build/
+
+# Monitoring et métriques
+metrics/
+stats/
+performance/
+
+# Documentation générée
+docs/build/
+site/
+
+# Temporaire pendant développement
+TODO.md
+NOTES.md
+scratch/
+temp/
