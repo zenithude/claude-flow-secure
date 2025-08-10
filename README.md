@@ -333,7 +333,7 @@ open http://127.0.0.1:3000/console
 | Avantage | Description |
 |----------|-------------|
 | 🔒 **Non tracké** | Vos projets ne polluent pas l'historique Git de Claude Flow |
-| 📁 **Accès direct** | Claude Flow voit vos fichiers dans `/workspace/workspace/` |
+| 📁 **Accès direct** | Claude Flow voit vos fichiers dans `/workspace/` (sécurisé) |
 | 🔄 **Synchronisé** | Modifications visibles en temps réel entre hôte et container |
 | 🎯 **Organisé** | Sépare clairement vos projets du code Claude Flow |
 | 🔧 **Flexible** | Créez autant de projets que nécessaire |
@@ -344,7 +344,7 @@ Une fois dans l'interface Claude Flow (http://127.0.0.1:3000/console), vous pouv
 
 ```bash
 # Naviguer vers votre projet
-cd /workspace/workspace/mon-api-fastapi
+cd /workspace/mon-api-fastapi
 
 # Lister les fichiers
 ls -la
@@ -394,7 +394,29 @@ workspace/
 - ✅ Vos projets restent **sur votre machine hôte**
 - ✅ Claude Flow a **accès complet** pour lire/écrire vos fichiers
 - ✅ **Sauvegarde recommandée** : versionnez vos projets workspace dans leurs propres repos Git
-- ⚠️ **Chemin dans container** : `/workspace/workspace/votre-projet/`
+- ⚠️ **Chemin dans container** : `/workspace/votre-projet/`
+- 🔒 **Sécurité renforcée** : Claude Flow n'a accès qu'au dossier workspace (pas aux fichiers du projet principal)
+
+### **🔐 Sécurité du Workspace**
+
+**Isolation complète :**
+- ✅ Claude Flow **ne peut pas accéder** aux fichiers du projet `claude-flow-secure`
+- ✅ **Seul le dossier `workspace/`** est monté dans le container
+- ✅ **Impossible de remonter** vers les fichiers parents (`../` bloqué)
+- ✅ **Aucun accès** aux scripts, Dockerfile, README principal
+- ✅ **Séparation totale** entre infrastructure et projets utilisateur
+
+**Test de sécurité :**
+```bash
+# Dans l'interface Claude Flow, ces commandes échoueront :
+cat /README.md                    # ❌ Fichier non trouvé
+ls /scripts/                      # ❌ Dossier non trouvé  
+cd /workspace/../ && ls          # ❌ Pas d'accès au parent
+
+# Seuls les fichiers workspace sont accessibles :
+ls /workspace/                    # ✅ Vos projets uniquement
+cd /workspace/mon-projet/         # ✅ Navigation autorisée
+```
 
 ## 🌐 Accès aux Interfaces - URLs Validées
 
