@@ -23,6 +23,36 @@ Cette solution fournit un environnement Docker **testé et validé** pour exécu
 - ✅ **Interface Web** : Accessible sur http://127.0.0.1:3000/console
 - ✅ **Tests automatisés** : Suite complète de validation
 
+## 📚 **Documentation Claude Flow**
+
+### 🌊 **[Guide Complet Claude Flow](docs/CLAUDE-FLOW-GUIDE.md)**
+
+**Guide ultra-complet de 1100+ lignes** pour maîtriser Claude Flow v2.0.0-alpha.86 :
+
+| Section | Contenu | Usage |
+|---------|---------|-------|
+| 🎯 **Concepts** | Swarms, Agents, Topologies | Comprendre les fondamentaux |
+| 🤖 **18 Types d'Agents** | coordinator, architect, coder, tester... | Choisir le bon agent |
+| 📡 **50+ Commandes MCP** | swarm_init, agent_spawn, task_orchestrate... | API complète |
+| 🔄 **Workflows** | TDD, API, CI/CD, refactoring | Méthodologies pratiques |
+| 🧠 **Mémoire & IA** | Système neural, apprentissage adaptatif | Fonctionnalités avancées |
+| 💡 **4 Exemples** | API FastAPI, Tests, Documentation, Refactoring | Cas d'usage réels |
+
+**🚀 Quick Start Claude Flow :**
+```python
+# 1. Créer un swarm
+mcp__claude-flow__swarm_init(topology="hierarchical", maxAgents=6)
+
+# 2. Ajouter des agents  
+mcp__claude-flow__agent_spawn(type="coordinator", name="Chef-Projet")
+mcp__claude-flow__agent_spawn(type="coder", name="Dev-Python")
+
+# 3. Lancer une tâche
+mcp__claude-flow__task_orchestrate(task="Créer API FastAPI", strategy="sequential")
+```
+
+> 💡 **Conseil** : Lis le [Guide Complet](docs/CLAUDE-FLOW-GUIDE.md) pour devenir expert en orchestration d'agents IA !
+
 ### 🛡️ Fonctionnalités de Sécurité Validées
 
 - **Container Isolé** : Claude Flow s'exécute dans un environnement complètement isolé
