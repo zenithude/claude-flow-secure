@@ -1,0 +1,68 @@
+# Dockerfile Alternative pour Claude Flow Sécurisé
+FROM node:20-alpine
+
+# Métadonnées
+LABEL maintainer="Claude Flow Security Setup"
+LABEL description="Container sécurisé pour Claude Flow (installation locale)"
+LABEL version="1.1-local"
+
+# Installation des dépendances système minimales
+RUN apk add --no-cache \
+    git \
+    bash \
+    curl \
+    jq \
+    && rm -rf /var/cache/apk/*
+
+# Mettre à jour npm vers la dernière version
+RUN npm install -g npm@latest
+
+# Création d'un utilisateur non-privilégié
+RUN addgroup -g 1001 -S claude && \
+    adduser -S claude -u 1001 -G claude -s /bin/bash
+
+# Répertoires de travail
+RUN mkdir -p /workspace /logs /var/run/claude /home/claude/.local/bin && \
+    chown -R claude:claude /workspace /logs /var/run/claude /home/claude
+
+# Basculer vers l'utilisateur non-privilégié
+USER claude
+
+# Répertoire de travail
+WORKDIR /home/claude
+
+# Installation locale de Claude Flow
+RUN npm init -y && \
+    npm install claude-flow@latest && \
+    npm cache clean --force
+
+# Créer un script wrapper
+RUN echo '#!/bin/bash' > /home/claude/.local/bin/claude-flow && \
+    echo 'exec node /home/claude/node_modules/.bin/claude-flow "$@"' >> /home/claude/.local/bin/claude-flow && \
+    chmod +x /home/claude/.local/bin/claude-flow
+
+# Ajouter le bin local au PATH
+ENV PATH="/home/claude/.local/bin:$PATH"
+
+# Répertoire de travail final
+WORKDIR /workspace
+
+# Configuration des ports
+EXPOSE 3000 8080
+
+# Variables d'environnement sécurisées
+ENV NODE_ENV=production
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+ENV CLAUDE_FLOW_CONTAINER=true
+ENV CLAUDE_FLOW_BIND_HOST=0.0.0.0
+
+# Volumes pour persistance sécurisée
+VOLUME ["/workspace", "/logs", "/var/run/claude"]
+
+# Script de santé pour monitoring
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Point d'entrée par défaut
+CMD ["claude-flow", "start", "--ui", "--port", "3000"]
