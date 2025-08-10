@@ -11,6 +11,7 @@
 .claude-flow-secure/backups/
 /tmp/claude-logs/
 .claude/
+CLAUDE.md
 
 # Docker
 .dockerignore
@@ -99,3 +100,4 @@ TODO.md
 NOTES.md
 scratch/
 temp/
+
