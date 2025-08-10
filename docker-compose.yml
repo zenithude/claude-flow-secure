@@ -1,0 +1,104 @@
+# docker-compose.yml pour Claude Flow Sécurisé
+version: '3.8'
+
+services:
+  claude-flow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: claude-flow-secure
+    restart: unless-stopped
+    
+    # Configuration réseau sécurisée
+    networks:
+      claude-network:
+        ipv4_address: 172.20.0.10
+    
+    # Ports exposés uniquement en local
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:8080:8080"
+    
+    # Volumes sécurisés
+    volumes:
+      - type: bind
+        source: .
+        target: /workspace
+        bind:
+          propagation: rshared
+      - type: bind
+        source: /tmp/claude-logs
+        target: /logs
+      - type: tmpfs
+        target: /tmp
+        tmpfs:
+          size: 100M
+          mode: 1777
+      - type: tmpfs
+        target: /var/tmp
+        tmpfs:
+          size: 100M
+          mode: 1777
+    
+    # Variables d'environnement
+    environment:
+      - NODE_ENV=production
+      - CLAUDE_FLOW_CONTAINER=true
+      - CLAUDE_FLOW_LOG_LEVEL=info
+      - NPM_CONFIG_UPDATE_NOTIFIER=false
+      - NPM_CONFIG_FUND=false
+    
+    # Utilisateur non-privilégié
+    user: "${UID:-1000}:${GID:-1000}"
+    
+    # Limitations de ressources
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Sécurité renforcée
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:unconfined
+    
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    
+    read_only: true
+    
+    # Santé du container
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Commande par défaut
+    command: ["claude-flow", "start", "--ui", "--port", "3000"]
+
+networks:
+  claude-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    driver_opts:
+      com.docker.network.bridge.enable_icc: "false"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+
+# Configuration des logs
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
