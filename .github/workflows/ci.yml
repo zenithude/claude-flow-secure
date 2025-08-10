@@ -1,0 +1,286 @@
+name: 🧪 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Test quotidien à 2h du matin UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  # Test de construction Docker
+  docker-build:
+    runs-on: ubuntu-latest
+    name: 🐳 Docker Build Test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t claude-flow-secure-test .
+    
+    - name: Test Docker image basic functionality
+      run: |
+        # Démarrer le container en mode test
+        docker run -d --name test-container \
+          -p 3000:3000 -p 8080:8080 \
+          claude-flow-secure-test
+        
+        # Attendre le démarrage
+        sleep 30
+        
+        # Vérifier que le container fonctionne
+        docker ps | grep test-container
+        
+        # Cleanup
+        docker stop test-container
+        docker rm test-container
+
+  # Tests de sécurité
+  security-tests:
+    runs-on: ubuntu-latest
+    name: 🔒 Security Tests
+    needs: docker-build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Run security scan on Dockerfile
+      uses: hadolint/hadolint-action@v3.1.0
+      with:
+        dockerfile: Dockerfile
+        failure-threshold: warning
+    
+    - name: Test container security
+      run: |
+        # Construire l'image
+        docker build -t claude-flow-security-test .
+        
+        # Tests de sécurité de base
+        echo "🔍 Test utilisateur non-root..."
+        CONTAINER_USER=$(docker run --rm claude-flow-security-test whoami)
+        if [ "$CONTAINER_USER" = "claude" ]; then
+          echo "✅ Container utilise un utilisateur non-root"
+        else
+          echo "❌ Container utilise root - ÉCHEC"
+          exit 1
+        fi
+        
+        # Test des capabilities
+        echo "🔍 Test des capabilities..."
+        docker run --rm claude-flow-security-test sh -c "
+          if capsh --print | grep -q 'Current: ='; then
+            echo '✅ Pas de capabilities privilégiées'
+          else
+            echo '❌ Capabilities privilégiées détectées - ÉCHEC'
+            exit 1
+          fi
+        "
+
+  # Tests fonctionnels
+  functional-tests:
+    runs-on: ubuntu-latest
+    name: ⚙️ Functional Tests
+    needs: docker-build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Make scripts executable
+      run: |
+        chmod +x scripts/*.sh
+        chmod +x tests/*.sh || true
+    
+    - name: Test setup script
+      run: |
+        # Test du script d'installation (mode dry-run)
+        echo "Testing setup script..."
+        # ./scripts/setup.sh --dry-run  # Si implémenté
+    
+    - name: Test Docker Compose
+      run: |
+        # Test de la configuration Docker Compose
+        docker-compose config
+        
+        # Test de démarrage/arrêt rapide
+        export UID=$(id -u)
+        export GID=$(id -g)
+        
+        echo "🚀 Démarrage Docker Compose..."
+        docker-compose up -d
+        
+        echo "⏳ Attente du démarrage..."
+        sleep 45
+        
+        echo "🧪 Tests de connectivité..."
+        # Test santé basique
+        if curl -f http://127.0.0.1:3000/health --max-time 10; then
+          echo "✅ Service accessible"
+        else
+          echo "❌ Service inaccessible"
+          docker-compose logs
+          exit 1
+        fi
+        
+        echo "🛑 Arrêt des services..."
+        docker-compose down
+
+  # Tests de connectivité
+  connectivity-tests:
+    runs-on: ubuntu-latest
+    name: 🌐 Connectivity Tests
+    needs: docker-build
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Make scripts executable
+      run: chmod +x scripts/*.sh
+    
+    - name: Install wscat for WebSocket testing
+      run: npm install -g wscat
+    
+    - name: Launch Claude Flow
+      run: |
+        # Démarrage avec le script de lancement
+        export UID=$(id -u)
+        export GID=$(id -g)
+        timeout 300 ./scripts/launch.sh &
+        
+        # Attendre le démarrage
+        echo "Attente du démarrage des services..."
+        for i in {1..60}; do
+          if curl -s http://127.0.0.1:3000/health > /dev/null; then
+            echo "✅ Services démarrés après ${i}0 secondes"
+            break
+          fi
+          sleep 10
+        done
+    
+    - name: Run connectivity tests
+      run: |
+        # Exécuter les tests de connectivité
+        ./scripts/test-connectivity.sh --detailed
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        ./scripts/stop.sh --full-cleanup || true
+        docker system prune -f || true
+
+  # Tests multi-plateforme
+  multi-platform:
+    runs-on: ${{ matrix.os }}
+    name: 🖥️ Multi-Platform Tests
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04]
+        # Note: macOS et Windows nécessitent Docker Desktop
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Test Docker build on ${{ matrix.os }}
+      run: |
+        docker build -t claude-flow-test-${{ matrix.os }} .
+        docker run --rm claude-flow-test-${{ matrix.os }} echo "Build successful on ${{ matrix.os }}"
+
+  # Publication des artefacts
+  publish-artifacts:
+    runs-on: ubuntu-latest
+    name: 📦 Publish Artifacts
+    needs: [docker-build, security-tests, functional-tests, connectivity-tests]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Build final image
+      run: |
+        docker build -t claude-flow-secure:latest .
+        docker save claude-flow-secure:latest | gzip > claude-flow-secure-image.tar.gz
+    
+    - name: Upload Docker image as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: claude-flow-secure-image
+        path: claude-flow-secure-image.tar.gz
+        retention-days: 30
+
+  # Tests de performance
+  performance-tests:
+    runs-on: ubuntu-latest
+    name: 📊 Performance Tests
+    needs: docker-build
+    if: github.event_name == 'schedule' || contains(github.event.pull_request.labels.*.name, 'performance')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install performance testing tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y apache2-utils htop
+    
+    - name: Launch Claude Flow for performance testing
+      run: |
+        chmod +x scripts/*.sh
+        ./scripts/launch.sh &
+        
+        # Attendre le démarrage
+        sleep 60
+    
+    - name: Run performance tests
+      run: |
+        echo "🚀 Tests de charge basiques..."
+        
+        # Test de charge HTTP
+        ab -n 100 -c 10 http://127.0.0.1:3000/health
+        
+        # Métriques du container
+        docker stats --no-stream claude-flow-* || true
+    
+    - name: Cleanup performance test
+      if: always()
+      run: |
+        ./scripts/stop.sh --full-cleanup || true
+
+  # Notification des résultats
+  notify:
+    runs-on: ubuntu-latest
+    name: 📢 Notify Results
+    needs: [docker-build, security-tests, functional-tests, connectivity-tests]
+    if: always()
+    
+    steps:
+    - name: Notification Success
+      if: ${{ needs.docker-build.result == 'success' && needs.security-tests.result == 'success' && needs.functional-tests.result == 'success' && needs.connectivity-tests.result == 'success' }}
+      run: |
+        echo "🎉 Tous les tests sont passés avec succès!"
+        echo "✅ Build Docker: OK"
+        echo "✅ Tests sécurité: OK" 
+        echo "✅ Tests fonctionnels: OK"
+        echo "✅ Tests connectivité: OK"
+    
+    - name: Notification Failure
+      if: ${{ needs.docker-build.result == 'failure' || needs.security-tests.result == 'failure' || needs.functional-tests.result == 'failure' || needs.connectivity-tests.result == 'failure' }}
+      run: |
+        echo "❌ Certains tests ont échoué!"
+        echo "🐳 Build Docker: ${{ needs.docker-build.result }}"
+        echo "🔒 Tests sécurité: ${{ needs.security-tests.result }}"
+        echo "⚙️ Tests fonctionnels: ${{ needs.functional-tests.result }}"
+        echo "🌐 Tests connectivité: ${{ needs.connectivity-tests.result }}"
+        exit 1
