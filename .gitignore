@@ -7,6 +7,7 @@
 *.log.*
 
 # Claude Flow runtime
+.claude-flow/
 .claude-flow-secure/logs/
 .claude-flow-secure/backups/
 /tmp/claude-logs/
@@ -77,6 +78,7 @@ test-reports/
 # Données utilisateur
 user-data/
 workspace/
+workspace/*
 projects/
 
 # Cache
@@ -90,6 +92,7 @@ build/
 metrics/
 stats/
 performance/
+.swarm/
 
 # Documentation générée
 docs/build/
