@@ -135,7 +135,7 @@ launch_container() {
         --user "$(id -u):$(id -g)" \
         --network "$NETWORK_NAME" \
         --ip 172.20.0.10 \
-        -v "$PROJECT_DIR:/workspace:rw" \
+        -v "$PROJECT_DIR/workspace:/workspace:rw" \
         -v "$LOG_DIR/claude-flow:/logs:rw" \
         -v "$LOG_DIR/security:/var/run/claude:rw" \
         -p 127.0.0.1:3000:3000 \

@@ -22,7 +22,7 @@ services:
     # Volumes sécurisés
     volumes:
       - type: bind
-        source: .
+        source: ./workspace
         target: /workspace
         bind:
           propagation: rshared
