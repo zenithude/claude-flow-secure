@@ -284,6 +284,118 @@ Modifiez `config/settings.json` pour ajuster les permissions (redémarrage requi
 }
 ```
 
+## 💼 Développement de Projets - Workspace
+
+### **Utilisation du Dossier `workspace/`**
+
+Claude Flow est conçu pour travailler dans le répertoire `claude-flow-secure`, mais vous pouvez développer vos projets personnels dans le dossier `workspace/` qui n'est **pas tracké par Git**.
+
+### **Structure Recommandée**
+
+```bash
+claude-flow-secure/
+├── workspace/              # 📁 Vos projets (non tracké)
+│   ├── mon-api-fastapi/   # 🐍 Projet API Python
+│   ├── mon-site-react/    # ⚛️ Projet Web React  
+│   ├── mon-app-flutter/   # 📱 Application mobile
+│   └── README.md          # Documentation workspace
+├── scripts/               # 📜 Scripts Claude Flow
+├── README.md             # 📖 Documentation principale
+└── ...                   # Fichiers du projet
+```
+
+### **Workflow de Développement Validé**
+
+```bash
+# 1. Créer votre nouveau projet
+mkdir -p workspace/mon-api-fastapi
+cd workspace/mon-api-fastapi
+
+# 2. Initialiser le projet (exemple FastAPI)
+echo "from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get('/')
+def hello():
+    return {'message': 'Hello World'}
+" > main.py
+
+# 3. Retourner au répertoire principal pour utiliser Claude Flow
+cd ../..
+
+# 4. Accéder à Claude Flow
+open http://127.0.0.1:3000/console
+```
+
+### **Avantages du Workspace**
+
+| Avantage | Description |
+|----------|-------------|
+| 🔒 **Non tracké** | Vos projets ne polluent pas l'historique Git de Claude Flow |
+| 📁 **Accès direct** | Claude Flow voit vos fichiers dans `/workspace/workspace/` |
+| 🔄 **Synchronisé** | Modifications visibles en temps réel entre hôte et container |
+| 🎯 **Organisé** | Sépare clairement vos projets du code Claude Flow |
+| 🔧 **Flexible** | Créez autant de projets que nécessaire |
+
+### **Exemples d'Utilisation dans Claude Flow**
+
+Une fois dans l'interface Claude Flow (http://127.0.0.1:3000/console), vous pouvez :
+
+```bash
+# Naviguer vers votre projet
+cd /workspace/workspace/mon-api-fastapi
+
+# Lister les fichiers
+ls -la
+
+# Installer des dépendances
+pip install fastapi uvicorn
+
+# Lancer votre application
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### **Cas d'Usage Typiques**
+
+**🐍 API Python/FastAPI :**
+```bash
+workspace/
+└── mon-api-fastapi/
+    ├── main.py
+    ├── requirements.txt
+    ├── models/
+    └── routes/
+```
+
+**⚛️ Application React :**
+```bash
+workspace/
+└── mon-site-react/
+    ├── package.json
+    ├── src/
+    ├── public/
+    └── components/
+```
+
+**📱 App Flutter :**
+```bash
+workspace/
+└── mon-app-flutter/
+    ├── pubspec.yaml
+    ├── lib/
+    ├── android/
+    └── ios/
+```
+
+### **⚠️ Notes Importantes**
+
+- ✅ Le dossier `workspace/` est **automatiquement ignoré** par Git
+- ✅ Vos projets restent **sur votre machine hôte**
+- ✅ Claude Flow a **accès complet** pour lire/écrire vos fichiers
+- ✅ **Sauvegarde recommandée** : versionnez vos projets workspace dans leurs propres repos Git
+- ⚠️ **Chemin dans container** : `/workspace/workspace/votre-projet/`
+
 ## 🌐 Accès aux Interfaces - URLs Validées
 
 Une fois démarré, Claude Flow est accessible via ces URLs **testées** :
