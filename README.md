@@ -44,10 +44,13 @@ cd claude-flow-secure
 # 2. Rendre les scripts exécutables
 chmod +x scripts/*.sh
 
-# 3. Test de validation (optionnel mais recommandé)
+# 3. Construire l'image Docker (OBLIGATOIRE)
+docker build -t claude-flow-secure:latest .
+
+# 4. Test de validation (optionnel mais recommandé)
 ./scripts/test-docker-build.sh
 
-# 4. Démarrage immédiat
+# 5. Démarrage immédiat
 make quick-start
 # ou
 ./scripts/launch.sh
@@ -759,16 +762,19 @@ Ce projet est distribué sous licence MIT. Voir le fichier [LICENSE](LICENSE) po
 git clone https://github.com/zenithude/claude-flow-secure.git
 cd claude-flow-secure
 
-# 2. Tester et valider  
+# 2. Construire l'image Docker (obligatoire)
+docker build -t claude-flow-secure:latest .
+
+# 3. Tester et valider  
 ./scripts/test-docker-build.sh
 
-# 3. Démarrer en production
+# 4. Démarrer en production
 make quick-start
 
-# 4. Vérifier fonctionnement
+# 5. Vérifier fonctionnement
 ./scripts/test-connectivity.sh --detailed
 
-# 5. Accéder à l'interface
+# 6. Accéder à l'interface
 open http://127.0.0.1:3000/console
 ```
 
