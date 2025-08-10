@@ -1,0 +1,17 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(pwd)",
+            "Bash(ls)",
+            "Bash(cat package.json)",
+            "Bash(npm run *)",
+            "Bash(git status)",
+            "Bash(git diff)"
+        ],
+        "deny": [
+            "Bash(rm -rf *)",
+            "Bash(curl * | bash)",
+            "Bash(sudo *)"
+        ]
+    }
+}
