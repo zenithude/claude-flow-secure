@@ -126,7 +126,7 @@ jobs:
         
         echo "🧪 Tests de connectivité..."
         # Test santé basique
-        if curl -f http://127.0.0.1:3000/health --max-time 30; then
+        if curl -f http://127.0.0.1:3000/console/ --max-time 30; then
           echo "✅ Service accessible"
         else
           echo "❌ Service inaccessible"
@@ -166,7 +166,7 @@ jobs:
         # Attendre le démarrage
         echo "Attente du démarrage des services..."
         for i in {1..120}; do
-          if curl -s http://127.0.0.1:3000/health > /dev/null; then
+          if curl -s http://127.0.0.1:3000/console/ > /dev/null; then
             echo "✅ Services démarrés après ${i}0 secondes"
             break
           fi

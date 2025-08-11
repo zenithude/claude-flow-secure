@@ -167,7 +167,7 @@ wait_for_service() {
     local attempt=1
     
     while [[ $attempt -le $max_attempts ]]; do
-        if curl -s http://127.0.0.1:3000/health &>/dev/null; then
+        if curl -s http://127.0.0.1:3000/console/ &>/dev/null; then
             log_success "Service disponible!"
             return 0
         fi

@@ -103,7 +103,7 @@ test_web_interface() {
 test_mcp_server() {
     log_info "Test 4: Serveur MCP ($MCP_SERVER_URL)"
     
-    local response_code=$(curl -s -o /dev/null -w "%{http_code}" "$MCP_SERVER_URL/health" 2>/dev/null || echo "000")
+    local response_code=$(curl -s -o /dev/null -w "%{http_code}" "$MCP_SERVER_URL" 2>/dev/null || echo "000")
     
     if [[ "$response_code" =~ ^[23][0-9][0-9]$ ]]; then
         log_success "Serveur MCP accessible (HTTP $response_code)"
