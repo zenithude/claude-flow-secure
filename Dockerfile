@@ -12,6 +12,7 @@ RUN apk add --no-cache \
     bash \
     curl \
     jq \
+    libcap \
     && rm -rf /var/cache/apk/*
 
 # Mettre à jour npm vers la dernière version

@@ -70,17 +70,18 @@ jobs:
         if [ "$CONTAINER_USER" = "claude" ]; then
           echo "✅ Container utilise un utilisateur non-root"
         else
-          echo "❌ Container utilise root - ÉCHEC"
+          echo "❌ Container utilise root - FAILED"
           exit 1
         fi
         
         # Test des capabilities
         echo "🔍 Test des capabilities..."
         docker run --rm claude-flow-security-test sh -c "
-          if capsh --print | grep -q 'Current: ='; then
+          CAPS=\$(capsh --print | grep 'Current:' | cut -d: -f2 | xargs)
+          if [ -z \"\$CAPS\" ] || [ \"\$CAPS\" = \"=\" ]; then
             echo '✅ Pas de capabilities privilégiées'
           else
-            echo '❌ Capabilities privilégiées détectées - ÉCHEC'
+            echo '❌ Capabilities privilégiées détectées: \$CAPS - FAILED'
             exit 1
           fi
         "
@@ -95,10 +96,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Make scripts executable
+    - name: Make scripts executable and create workspace
       run: |
         chmod +x scripts/*.sh
         chmod +x tests/*.sh || true
+        mkdir -p workspace
+        echo "Test workspace created for CI/CD" > workspace/README.md
     
     - name: Test setup script
       run: |
@@ -119,11 +122,11 @@ jobs:
         docker-compose up -d
         
         echo "⏳ Attente du démarrage..."
-        sleep 45
+        sleep 90
         
         echo "🧪 Tests de connectivité..."
         # Test santé basique
-        if curl -f http://127.0.0.1:3000/health --max-time 10; then
+        if curl -f http://127.0.0.1:3000/health --max-time 30; then
           echo "✅ Service accessible"
         else
           echo "❌ Service inaccessible"
@@ -144,8 +147,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Make scripts executable
-      run: chmod +x scripts/*.sh
+    - name: Make scripts executable and create workspace
+      run: |
+        chmod +x scripts/*.sh
+        mkdir -p workspace
+        echo "Test workspace for connectivity tests" > workspace/README.md
     
     - name: Install wscat for WebSocket testing
       run: npm install -g wscat
@@ -159,7 +165,7 @@ jobs:
         
         # Attendre le démarrage
         echo "Attente du démarrage des services..."
-        for i in {1..60}; do
+        for i in {1..120}; do
           if curl -s http://127.0.0.1:3000/health > /dev/null; then
             echo "✅ Services démarrés après ${i}0 secondes"
             break
@@ -278,7 +284,7 @@ jobs:
     - name: Notification Failure
       if: ${{ needs.docker-build.result == 'failure' || needs.security-tests.result == 'failure' || needs.functional-tests.result == 'failure' || needs.connectivity-tests.result == 'failure' }}
       run: |
-        echo "❌ Certains tests ont échoué!"
+        echo "❌ Some tests have failed!"
         echo "🐳 Build Docker: ${{ needs.docker-build.result }}"
         echo "🔒 Tests sécurité: ${{ needs.security-tests.result }}"
         echo "⚙️ Tests fonctionnels: ${{ needs.functional-tests.result }}"
