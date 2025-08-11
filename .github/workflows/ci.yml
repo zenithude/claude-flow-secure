@@ -112,14 +112,14 @@ jobs:
     - name: Test Docker Compose
       run: |
         # Test de la configuration Docker Compose
-        docker-compose config
+        docker compose config
         
         # Test de démarrage/arrêt rapide
         export UID=$(id -u)
         export GID=$(id -g)
         
         echo "🚀 Démarrage Docker Compose..."
-        docker-compose up -d
+        docker compose up -d
         
         echo "⏳ Attente du démarrage..."
         sleep 90
@@ -130,12 +130,12 @@ jobs:
           echo "✅ Service accessible"
         else
           echo "❌ Service inaccessible"
-          docker-compose logs
+          docker compose logs
           exit 1
         fi
         
         echo "🛑 Arrêt des services..."
-        docker-compose down
+        docker compose down
 
   # Tests de connectivité
   connectivity-tests:
