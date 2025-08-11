@@ -1,0 +1,17 @@
+# Hadolint configuration pour Claude Flow Secure
+# Documentation: https://github.com/hadolint/hadolint
+
+ignored:
+  # DL3018: Pin versions in apk add
+  # Justification: Pour un environnement de développement, nous préférons 
+  # utiliser les dernières versions des outils système (git, bash, curl, jq, libcap)
+  # plutôt que de maintenir des versions spécifiques qui peuvent devenir obsolètes
+  - DL3018
+
+# Règles à maintenir strictement
+failure-threshold: error
+
+# Trust les registries officiels
+trustedRegistries:
+  - docker.io
+  - index.docker.io
