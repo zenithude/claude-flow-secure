@@ -890,7 +890,8 @@ Ce projet est distribué sous licence MIT. Voir le fichier [LICENSE](LICENSE) po
 
 ### **🙏 Remerciements Spéciaux**
 
-- **Anthropic** pour Claude AI et Claude Flow
+- **Anthropic** pour Claude AI 
+- [**Ruvnet**](https://github.com/ruvnet/claude-flow) pour Claude Flow
 - **Communauté Docker** pour les meilleures pratiques de sécurité
 - **Contributeurs Beta** qui ont testé et validé cette solution
 - **Mainteneurs Node.js** pour la LTS 20.x stable

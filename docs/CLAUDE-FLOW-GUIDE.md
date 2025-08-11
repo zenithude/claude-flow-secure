@@ -1098,14 +1098,8 @@ mcp__claude-flow__cost_analysis(
 ## 📚 Ressources Complémentaires
 
 ### 🔗 **Liens Utiles**
-- [Documentation officielle Claude Flow](https://github.com/anthropics/claude-flow)
-- [Exemples communauté](https://github.com/topics/claude-flow)
-- [API Reference](https://docs.claude-flow.dev/api)
+- [Documentation officielle Claude Flow](https://github.com/ruvnet/claude-flow)
 
-### 🆘 **Support**
-- [Issues GitHub](https://github.com/anthropics/claude-flow/issues)
-- [Discussions](https://github.com/anthropics/claude-flow/discussions)
-- [Discord Communauté](https://discord.gg/claude-flow)
 
 ### 📈 **Roadmap**
 - ✅ **v2.0** : Système neural, DAA, GitHub intégration
