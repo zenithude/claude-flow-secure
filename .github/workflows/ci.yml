@@ -115,8 +115,8 @@ jobs:
         docker compose config
         
         # Test de démarrage/arrêt rapide
-        export UID=$(id -u)
-        export GID=$(id -g)
+        export USER_ID=$(id -u)
+        export GROUP_ID=$(id -g)
         
         echo "🚀 Démarrage Docker Compose..."
         docker compose up -d
@@ -159,8 +159,8 @@ jobs:
     - name: Launch Claude Flow
       run: |
         # Démarrage avec le script de lancement
-        export UID=$(id -u)
-        export GID=$(id -g)
+        export USER_ID=$(id -u)
+        export GROUP_ID=$(id -g)
         timeout 300 ./scripts/launch.sh &
         
         # Attendre le démarrage

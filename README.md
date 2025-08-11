@@ -735,49 +735,49 @@ claude-flow-secure/
 
 ```bash
 # Variables d'environnement automatiques
-export UID=$(id -u)
-export GID=$(id -g)
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
 
 # Démarrage simple
-docker-compose up -d
+docker compose up -d
 
 # Vérification statut
-docker-compose ps
+docker compose ps
 
 # Logs en temps réel
-docker-compose logs -f
+docker compose logs -f
 
 # Arrêt propre
-docker-compose down
+docker compose down
 ```
 
 ### **Configuration Docker Compose Avancée**
 
 ```bash
 # Démarrage avec reconstruction
-docker-compose up -d --build
+docker compose up -d --build
 
 # Scaling (si supporté)
-docker-compose up -d --scale claude-flow=1
+docker compose up -d --scale claude-flow=1
 
 # Monitoring ressources
-docker-compose exec claude-flow docker stats --no-stream
+docker compose exec claude-flow docker stats --no-stream
 
 # Backup avec Docker Compose
-docker-compose exec claude-flow tar -czf /logs/backup-$(date +%s).tar.gz /workspace
+docker compose exec claude-flow tar -czf /logs/backup-$(date +%s).tar.gz /workspace
 ```
 
 ### **Développement avec Docker Compose**
 
 ```bash
 # Mode développement (volumes modifiables)
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 # Accès shell pour debug
-docker-compose exec claude-flow sh
+docker compose exec claude-flow sh
 
 # Reconstruction sans cache
-docker-compose build --no-cache
+docker compose build --no-cache
 ```
 
 ## 📖 FAQ - Questions Mises à Jour
