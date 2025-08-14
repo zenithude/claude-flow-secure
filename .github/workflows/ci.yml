@@ -190,7 +190,7 @@ jobs:
     name: 🖥️ Multi-Platform Tests
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-20.04]
+        os: [ubuntu-latest]
         # Note: macOS et Windows nécessitent Docker Desktop
         
     steps:
