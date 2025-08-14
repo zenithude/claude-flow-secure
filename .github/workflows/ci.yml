@@ -163,11 +163,14 @@ jobs:
         export GROUP_ID=$(id -g)
         timeout 300 ./scripts/launch.sh &
         
-        # Attendre le démarrage
+        # Attendre le démarrage complet
         echo "Attente du démarrage des services..."
         for i in {1..120}; do
           if curl -s http://127.0.0.1:3000/console/ > /dev/null; then
             echo "✅ Services démarrés après ${i}0 secondes"
+            # Attendre encore 30s pour le health check
+            echo "Attente supplémentaire pour le health check..."
+            sleep 30
             break
           fi
           sleep 10
